@@ -28,5 +28,4 @@ describe('Ship Factory Function', () => {
         ship.hit(2);
         expect(ship.isSunk()).toEqual(true);
     });
-    test
 });
