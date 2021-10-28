@@ -32,6 +32,7 @@ describe('Ship Factory Function', () => {
 
 describe('Gameboard Factory Function', () => {
     const board = Gameboard();
+    
     test('Has a state array property', () => {
         expect(Array.isArray(board.state)).toEqual(true);
     });

@@ -64,13 +64,13 @@ const Gameboard = () => {
     function placeShip(length, placeHorizontal, y, x) {
         const id = createShipReference(length);
         const stateCopy = [...state];
-        const completedPlacingShip = true;
+        let completedPlacingShip = true;
         
 
         // place ship
         for (let i = 0; i < length; i++) {
                 const changingAxis = placeHorizontal ? x : y;
-                const manipulatedCoord = changingAxis + i;
+                let manipulatedCoord = changingAxis + i;
 
                 if (placeHorizontal) {
                     const fieldContent = stateCopy[y][manipulatedCoord];
@@ -104,7 +104,4 @@ const Gameboard = () => {
     return { state, placeShip, receiveAttack}
 
 };
-const board = Gameboard();
-board.placeShip(3, false, 0, 0);
-board.state;
 export { Ship, Gameboard };
