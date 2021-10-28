@@ -77,5 +77,6 @@ describe('Gameboard Factory Function', () => {
         expect(placedShip).toEqual(false);
     });
 
-    test.todo('Has allSunk() tells if all ships are sunk')
-})
+    test('Has allSunk() tells if all ships are sunk', () => {
+    });
+});
