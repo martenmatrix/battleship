@@ -1,25 +1,18 @@
 /* eslint-disable indent */
 
 const Ship = (length) => {
-    const hitState = [];
+    let positionsHit = 0;
 
-    function createState() {
-        const createHitState = () => hitState.push(false);
-        for (let i = 0; i < length; i++) createHitState();
-    }
-
-    function hit(index) {
-        this.hitState[index] = true;
+    // make hit function that it subtract from length
+    function hit() {
+        positionsHit += 1;
     }
 
     function isSunk() {
-        return hitState.every((isHit) => isHit === true);
+        return (length <= positionsHit);
     }
 
-    createState();
-    return {
-        length, hitState, hit, isSunk,
-    };
+    return { length, hit, isSunk };
 };
 
 const test = Ship(3);
@@ -104,26 +97,31 @@ const Gameboard = () => {
     }
 
     function receiveAttack(y, x) {
-        const stateOfField = state[x][y];
+        const stateOfField = state[y][x];
         if (stateOfField === 'miss') return false;
-        if (stateOfField === 'empty') return false;
+        if (stateOfField === 'empty') {
+            state[y][x] = 'miss';
+            return false;
+        }
 
         // must have hit a ship if not empty and not missed
         const id = stateOfField;
-        const hitShip = getShipReferenceFromID(id);
-        hitShip.hit();
+        const hitShipObject = placedShips[id];
+        hitShipObject.hit();
         return true;
     }
 
     function allSunk() {
-
     }
 
     return { state, placeShip, receiveAttack };
 };
 
+console.log('this is output');
+
 const board = Gameboard();
-board.receiveAttack(2, 2);
+board.placeShip(3, true, 3, 2);
+board.receiveAttack(3, 2);
 
 // es6 modules are always in strict mode
 export { Ship, Gameboard };

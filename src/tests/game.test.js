@@ -9,18 +9,40 @@ describe('Ship Factory Function', () => {
         expect(shipLength).toEqual(3);
     });
 
-    test('has hitState array property', () => {
+    test('hit() marks one position as hit', () => {
+        const ship = new Ship(3);
+        ship.hit();
+        expect(ship.isSunk()).toEqual(false);
+    });
+
+    test('if all positions are hit, isSunk is true', () => {
+        const ship = new Ship(3);
+        ship.hit();
+        ship.hit();
+        ship.hit();
+        expect(ship.isSunk()).toEqual(true);
+    });
+
+    test('if ship is more hit than there are positions, isSunk is false', () => {
+        const ship = new Ship(1);
+        ship.hit();
+        ship.hit();
+        expect(ship.isSunk()).toEqual(true);
+    });
+
+    // below are old tests, which still used an array
+    test.skip('has hitState array property', () => {
         const ship = new Ship(3);
         expect(Array.isArray(ship.hitState)).toEqual(true);
     });
 
-    test('hit() takes a position and marks it as hit', () => {
+    test.skip('hit() takes a position and marks it as hit', () => {
         const ship = new Ship(3);
         ship.hit(0);
         expect(ship.hitState).toEqual([true, false, false]);
     });
 
-    test('isSunk() can tell if the ship is completely sunk', () => {
+    test.skip('isSunk() can tell if the ship is completely sunk', () => {
         const ship = new Ship(3);
         ship.hit(1);
         expect(ship.isSunk()).toEqual(false);
@@ -32,13 +54,13 @@ describe('Ship Factory Function', () => {
 
 describe('Gameboard Factory Function', () => {
     const board = Gameboard();
-    
+
     test('Has a state array property', () => {
         expect(Array.isArray(board.state)).toEqual(true);
     });
 
     test('Is a 10x10 field', () => {
-        const state = board.state;
+        const { state } = board;
         expect(state[9][9]).toEqual('empty');
     });
 
@@ -61,13 +83,15 @@ describe('Gameboard Factory Function', () => {
     });
 
     test('Ship can receive an attack', () => {
-        const didHit = board.receiveAttack();
-        expect(didHit).toEqual(true); 
+        const response = board.placeShip(3, false, 6, 0);
+        expect(response).toEqual(true);
+        const didHit = board.receiveAttack(6, 0);
+        expect(didHit).toEqual(true);
     });
 
     test('Empty fields can receive an attack and are marked as missed', () => {
+        const { state } = board;
         const didHit = board.receiveAttack(9, 0);
-        const state = board.state;
         expect(didHit).toEqual(false);
         expect(state[9][0]).toEqual('miss');
     });
