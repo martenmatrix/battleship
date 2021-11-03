@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable indent */
-import { Ship, Gameboard } from '../game';
+import { Ship, Gameboard, Player } from '../game';
 
 describe('Ship Factory Function', () => {
     test('You can pass in length parameter, which is accessible as property', () => {
@@ -27,27 +27,6 @@ describe('Ship Factory Function', () => {
         const ship = new Ship(1);
         ship.hit();
         ship.hit();
-        expect(ship.isSunk()).toEqual(true);
-    });
-
-    // below are old tests, which still used an array
-    test.skip('has hitState array property', () => {
-        const ship = new Ship(3);
-        expect(Array.isArray(ship.hitState)).toEqual(true);
-    });
-
-    test.skip('hit() takes a position and marks it as hit', () => {
-        const ship = new Ship(3);
-        ship.hit(0);
-        expect(ship.hitState).toEqual([true, false, false]);
-    });
-
-    test.skip('isSunk() can tell if the ship is completely sunk', () => {
-        const ship = new Ship(3);
-        ship.hit(1);
-        expect(ship.isSunk()).toEqual(false);
-        ship.hit(0);
-        ship.hit(2);
         expect(ship.isSunk()).toEqual(true);
     });
 });
@@ -92,7 +71,7 @@ describe('Gameboard Factory Function', () => {
     test('Empty fields can receive an attack and are marked as missed', () => {
         const { state } = board;
         const didHit = board.receiveAttack(9, 0);
-        expect(didHit).toEqual(false);
+        expect(didHit).toEqual('miss');
         expect(state[9][0]).toEqual('miss');
     });
 
@@ -102,5 +81,59 @@ describe('Gameboard Factory Function', () => {
     });
 
     test('Has allSunk() tells if all ships are sunk', () => {
+        const board2 = Gameboard();
+        board2.placeShip(2, true, 5, 0);
+        board2.receiveAttack(5, 0);
+        board2.receiveAttack(5, 1);
+        expect(board2.allSunk()).toEqual(true);
+    });
+});
+
+describe('Player Factory Function', () => {
+    const player = Player('player1');
+    const player2 = Player('player2');
+
+    test('attackEnemy() takes an enemy player factory and receives an attack on it', () => {
+        expect(Array.isArray(player.state)).toEqual(true);
+    });
+
+    test('Players have an accessible name property', () => {
+        expect(typeof player.name).toEqual('string');
+    });
+
+    test('Players can attack enemy with attackEnemy() and get a response', () => {
+        player.placeShip(1, true, 0, 0);
+        const response = player2.attackEnemy(player, 0, 0);
+        expect(response).toEqual(true);
+        const response2 = player2.attackEnemy(player, 1, 1);
+        expect(response2).toEqual('miss');
+    });
+
+    describe('Attack AI', () => {
+            const computer = Player('computer');
+            const computerEnemy = Player('player1');
+
+            test('has isComputer property', () => {
+                expect(computer.isComputer).toEqual(true);
+            });
+
+            test('when doing 100 random attacks all miss', () => {
+                for (let i = 0; i < 100; i++) {
+                    const response = computer.attackEnemyAI(computerEnemy);
+                    expect(response).toEqual('miss');
+                }
+            });
+
+            test('every state field of the enemy has the missed state', () => {
+                computerEnemy.state.forEach((fieldArray) => {
+                    const everyFieldMiss = fieldArray.every((field) => field === 'miss');
+                    expect(everyFieldMiss).toEqual(true);
+                });
+            });
+
+            test('if every state field is posessed returns false', () => {
+                const response = computer.attackEnemyAI(computerEnemy);
+                expect(response).toEqual(false);
+            });
     });
 });

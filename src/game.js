@@ -15,9 +15,6 @@ const Ship = (length) => {
     return { length, hit, isSunk };
 };
 
-const test = Ship(3);
-test.hit(1);
-
 const Gameboard = () => {
     let state = [
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
@@ -31,7 +28,7 @@ const Gameboard = () => {
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
     ];
-    const placedShips = {};
+    const placedShips = [];
     let counter = 0;
 
     function setState(array) {
@@ -45,17 +42,15 @@ const Gameboard = () => {
 
     function createShipReference(length) {
         const newShip = Ship(length);
-
         const id = createID();
-        placedShips[id] = newShip;
+
+        const newShipWithID = Object.assign({ id }, newShip);
+        placedShips.push(newShipWithID);
         return id;
     }
 
-    function getShipReferenceFromID(id) {
-        const reference = Object.keys(placedShips).find((key) => {
-            const value = placedShips[key];
-            return value === id;
-        });
+    function getShipReference(id) {
+        const reference = placedShips.find((obj) => obj.id === id);
         return reference;
     }
 
@@ -101,27 +96,79 @@ const Gameboard = () => {
         if (stateOfField === 'miss') return false;
         if (stateOfField === 'empty') {
             state[y][x] = 'miss';
-            return false;
+            return 'miss';
         }
 
         // must have hit a ship if not empty and not missed
         const id = stateOfField;
-        const hitShipObject = placedShips[id];
+        const hitShipObject = getShipReference(id);
         hitShipObject.hit();
         return true;
     }
 
     function allSunk() {
+        const allShipsSunk = placedShips.every((shipObject) => shipObject.isSunk() === true);
+        return allShipsSunk;
     }
 
-    return { state, placeShip, receiveAttack };
+    return {
+        state, placeShip, receiveAttack, allSunk,
+    };
 };
 
-console.log('this is output');
+const Player = (name) => {
+    const playerBoard = Gameboard();
+    const isComputer = name === 'computer';
+    let iterationAI = 0;
 
-const board = Gameboard();
-board.placeShip(3, true, 3, 2);
-board.receiveAttack(3, 2);
+    function attackEnemy(enemyPlayer, y, x) {
+        const response = enemyPlayer.receiveAttack(y, x);
+        return response;
+    }
+
+    const attackedCoordinates = {
+        hit: [],
+        miss: [],
+    };
+
+    function attackEnemyAI(enemyPlayer) {
+        // generates number bewteen 0 and 9
+        const randomCoordinate = () => Math.floor(Math.random() * 10);
+
+        while (iterationAI < 100) {
+            const x = randomCoordinate();
+            const y = randomCoordinate();
+
+            const response = attackEnemy(enemyPlayer, y, x);
+
+            if (!(response === false)) {
+                // field was not already hit, increase counter
+                iterationAI += 1;
+            }
+
+            if (response === true) {
+                attackedCoordinates.hit.push({ y, x });
+                return true;
+            }
+
+            if (response === 'miss') {
+                attackedCoordinates.miss.push({ x, y });
+                return 'miss';
+            }
+        }
+
+        return false;
+    }
+
+    return {
+        name, isComputer, attackEnemy, attackEnemyAI, ...playerBoard,
+    };
+};
+
+const p1 = Player('p1');
+const computer = Player('computer');
+computer.attackEnemyAI(p1);
+
 
 // es6 modules are always in strict mode
-export { Ship, Gameboard };
+export { Ship, Gameboard, Player };
