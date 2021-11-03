@@ -165,10 +165,5 @@ const Player = (name) => {
     };
 };
 
-const p1 = Player('p1');
-const computer = Player('computer');
-computer.attackEnemyAI(p1);
-
-
 // es6 modules are always in strict mode
 export { Ship, Gameboard, Player };
