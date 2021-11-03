@@ -68,6 +68,10 @@ describe('Gameboard Factory Function', () => {
         expect(didHit).toEqual(true);
     });
 
+    test('If ship received an attack, state in array is hit', () => {
+        expect(board.state[6][0]).toEqual('hit');
+    });
+
     test('Empty fields can receive an attack and are marked as missed', () => {
         const { state } = board;
         const didHit = board.receiveAttack(9, 0);

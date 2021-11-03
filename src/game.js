@@ -103,6 +103,7 @@ const Gameboard = () => {
         const id = stateOfField;
         const hitShipObject = getShipReference(id);
         hitShipObject.hit();
+        state[y][x] = 'hit';
         return true;
     }
 

@@ -14,6 +14,10 @@ module.exports = merge(common, {
   },
 
   devServer: {
+    devMiddleware: {
+      writeToDisk: true,
+    },
+
     client: {
       overlay: false,
     },
