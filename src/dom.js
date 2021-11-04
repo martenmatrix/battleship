@@ -1,10 +1,10 @@
 /* eslint-disable indent */
 
 const BoardDOM = (id, inDiv) => {
-    function createName(name = id) {
+    (function createName(name = id) {
         const nameDIV = inDiv.querySelector('.name');
         nameDIV.textContent = name;
-    }
+    }());
 
     function getNewField(x, y) {
         const field = document.createElement('div');
@@ -16,7 +16,7 @@ const BoardDOM = (id, inDiv) => {
         return field;
     }
 
-    function createFields() {
+    (function createFields() {
         const fields = inDiv.querySelector('.fields');
 
         // create 100 divs in 1 div
@@ -33,7 +33,7 @@ const BoardDOM = (id, inDiv) => {
                 x = 0;
             }
         }
-    }
+    }());
 
     function setStateField(state, y, x) {
         const fieldSelector = `.fields .field[data-y="${y}"][data-x="${x}"]`;
@@ -60,22 +60,35 @@ const BoardDOM = (id, inDiv) => {
         });
     }
 
-    return { createName, createFields, setState };
+    return { setState };
 };
 
-const div = document.getElementById('player');
-BoardDOM('test', div).createFields();
-
-const UserInterface = () => {
-
-    const fieldPlayer = (name, inDiv) => {
-        const boardDOM = boardDOM(name, inDiv);
-        return { ...boardDOM };
-    }
-
-    const fieldEnemy = () => {
-
-    }
+const DragDropAPI = (() => {
+    
 }
+
+const UserInterface = (() => {
+    const fieldPlayer = (() => {
+        const name = 'You';
+        const inDiv = document.getElementById('player');
+
+        const boardDOM = BoardDOM(name, inDiv);
+        return { ...boardDOM };
+    })();
+
+    const fieldEnemy = (() => {
+        const name = 'Enemy';
+        const inDiv = document.getElementById('enemy');
+
+        const boardDOM = BoardDOM(name, inDiv);
+        return { ...boardDOM };
+    })();
+
+    function displayWinner(name) {
+
+    }
+
+    return { fieldPlayer, fieldEnemy };
+})();
 
 export default UserInterface;
