@@ -119,7 +119,7 @@ describe('Gameboard Factory Function', () => {
             expect(previewState).toEqual(previousState);
         });
         test('resetPreview() resets the array to the current state', () => {
-            const { previewState } = newBoard;
+            const { previewState, state } = newBoard;
             newBoard.placeShipPreview(3, true, 0, 0);
             newBoard.resetPreview();
             expect(previewState).toEqual(state);

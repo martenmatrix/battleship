@@ -63,25 +63,32 @@ const BoardDOM = (id, inDiv) => {
     return { setState };
 };
 
-const DragDropAPI = (() => {
-    const shipContainer = document.querySelector('.draggable-ships');
-    const field = document.querySelector('#player .fields');
+const DragDropAPI = (shipContainer, gameField) => {
+    function addListenerToGameField(GameboardObject) {
+        gameField.addEventListener('dragover', (e) => {
+            GameboardObject.resetPreview();
+            const currentDragElement = shipContainer.querySelector('.dragging');
+            const shipLength = currentDragElement.dataset.length;
+            const placeInField = e.target.closest('.fields .field');
+            GameboardObject.placeShipPreview(length, placeHorizontal, y, x)
+        });
+    }
 
     function addOnDragListener(div) {
         div.addEventListener('dragstart', () => div.classList.add('dragging'));
     }
 
+    // drop event fires if player let element go
     function addOnReleaseListener(div) {
         div.addEventListener('dragend', () => div.classList.remove('dragging'));
     }
 
-    function setFieldToDragOnto() {
-        div.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
+    function addEventListenersToShip(div) {
+        addOnDragListener(div);
+        addOnReleaseListener(div);
     }
 
-    function getXAndYCoordinateOfFirstCell(e) {
+    function getXAndYCoordinateOfFirstCell(div) {
     }
 
     function createDraggableShip(length) {
@@ -97,20 +104,21 @@ const DragDropAPI = (() => {
             ship.appendChild(field);
         }
 
-        addOnDragListener(ship);
-        addOnReleaseListener(ship);
+        addEventListenersToShip(ship);
         shipContainer.appendChild(ship);
     }
 
-    return { createDraggableShip };
-})();
-
-DragDropAPI.createDraggableShip(3);
+    return { createDraggableShip, addListenerToGameField };
+};
 
 const UserInterface = (() => {
     const fieldPlayer = (() => {
         const name = 'You';
         const inDiv = document.getElementById('player');
+
+        const shipContainer = document.querySelector('.draggable-ships');
+        const gameField = document.querySelector('#player .fields');
+        const dragAPI = DragDropAPI(shipContainer, gameField);
 
         const boardDOM = BoardDOM(name, inDiv);
         return { ...boardDOM };
@@ -131,4 +139,4 @@ const UserInterface = (() => {
     return { fieldPlayer, fieldEnemy };
 })();
 
-export default UserInterface;
+export { UserInterface, DragDropAPI };
