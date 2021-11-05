@@ -64,8 +64,48 @@ const BoardDOM = (id, inDiv) => {
 };
 
 const DragDropAPI = (() => {
-    
-}
+    const shipContainer = document.querySelector('.draggable-ships');
+    const field = document.querySelector('#player .fields');
+
+    function addOnDragListener(div) {
+        div.addEventListener('dragstart', () => div.classList.add('dragging'));
+    }
+
+    function addOnReleaseListener(div) {
+        div.addEventListener('dragend', () => div.classList.remove('dragging'));
+    }
+
+    function setFieldToDragOnto() {
+        div.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+    }
+
+    function getXAndYCoordinateOfFirstCell(e) {
+    }
+
+    function createDraggableShip(length) {
+        const ship = document.createElement('div');
+        ship.classList.add('draggable-ship');
+        ship.dataset.length = length;
+        ship.setAttribute('draggable', 'true');
+
+        for (let i = 0; i < length; i++) {
+            const field = document.createElement('div');
+            field.classList.add('field');
+            field.classList.add('drag');
+            ship.appendChild(field);
+        }
+
+        addOnDragListener(ship);
+        addOnReleaseListener(ship);
+        shipContainer.appendChild(ship);
+    }
+
+    return { createDraggableShip };
+})();
+
+DragDropAPI.createDraggableShip(3);
 
 const UserInterface = (() => {
     const fieldPlayer = (() => {

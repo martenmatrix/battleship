@@ -28,12 +28,16 @@ const Gameboard = () => {
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
     ];
+    const previewState = [...state];
+
     const placedShips = [];
     let counter = 0;
 
     function setState(array) {
         state = array;
     }
+
+    function setPre
 
     function createID() {
         counter += 1;
@@ -110,6 +114,14 @@ const Gameboard = () => {
     function allSunk() {
         const allShipsSunk = placedShips.every((shipObject) => shipObject.isSunk() === true);
         return allShipsSunk;
+    }
+
+    function placeShipPreview() {
+
+    }
+
+    function resetPreview() {
+
     }
 
     return {

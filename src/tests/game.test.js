@@ -91,6 +91,41 @@ describe('Gameboard Factory Function', () => {
         board2.receiveAttack(5, 1);
         expect(board2.allSunk()).toEqual(true);
     });
+
+    // test if it has an array of previewState
+    describe('Preview function', () => {
+        const newBoard = new Gameboard();
+        test('previewState is a 10x10 array', () => {
+            const { previewState } = newBoard;
+            expect(Array.isArray(previewState)).toEqual(true);
+        });
+        test('previewState has currently the same state as the normal state', () => {
+            const { previewState, state } = newBoard;
+            expect(previewState).toEqual(state);
+        });
+        test('placeShipPreview() returns true if a placement of a ship is possible changes the preview array', () => {
+            const { previewState } = newBoard;
+            const response = board.placeShipPreview(3, true, 0, 0);
+            expect(response).toEqual(true);
+            expect(previewState[0][0]).not.toEqual('empty');
+            expect(previewState[0][1]).not.toEqual('empty');
+            expect(previewState[0][2]).not.toEqual('empty');
+        });
+        test('placeShipPreview() returns false and does not change the array if a move is not possible', () => {
+            const previousState = newBoard.previewState;
+            const response = newBoard.placeShipPreview(3, true, 0, 0);
+            expect(response).toEqual(false);
+            const { previewState } = newBoard;
+            expect(previewState).toEqual(previousState);
+        });
+        test('resetPreview() resets the array to the current state', () => {
+            const { previewState } = newBoard;
+            newBoard.placeShipPreview(3, true, 0, 0);
+            newBoard.resetPreview();
+            expect(previewState).toEqual(state);
+        });
+        // todo maybe completely replace previewState with one var declarations as refernce is kept
+    });
 });
 
 describe('Player Factory Function', () => {
