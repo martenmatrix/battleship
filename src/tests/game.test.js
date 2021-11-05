@@ -94,7 +94,7 @@ describe('Gameboard Factory Function', () => {
 
     // test if it has an array of previewState
     describe('Preview function', () => {
-        const newBoard = new Gameboard();
+        const newBoard = Gameboard();
         test('previewState is a 10x10 array', () => {
             const { previewState } = newBoard;
             expect(Array.isArray(previewState)).toEqual(true);
@@ -105,7 +105,7 @@ describe('Gameboard Factory Function', () => {
         });
         test('placeShipPreview() returns true if a placement of a ship is possible changes the preview array', () => {
             const { previewState } = newBoard;
-            const response = board.placeShipPreview(3, true, 0, 0);
+            const response = newBoard.placeShipPreview(3, true, 0, 0);
             expect(response).toEqual(true);
             expect(previewState[0][0]).not.toEqual('empty');
             expect(previewState[0][1]).not.toEqual('empty');
