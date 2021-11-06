@@ -64,14 +64,43 @@ const BoardDOM = (id, inDiv) => {
 };
 
 const DragDropAPI = (shipContainer, gameField) => {
-    function addListenerToGameField(GameboardObject) {
-        gameField.addEventListener('dragover', (e) => {
-            GameboardObject.resetPreview();
-            const currentDragElement = shipContainer.querySelector('.dragging');
-            const shipLength = currentDragElement.dataset.length;
-            const placeInField = e.target.closest('.fields .field');
-            GameboardObject.placeShipPreview(length, placeHorizontal, y, x)
-        });
+    let GameboardObject;
+    let boardDOMObject;
+    let placeHorizontal = false;
+
+    function setPlaceHorizontal(boolean) {
+        placeHorizontal = boolean;
+    }
+
+    function setBoardDOMObject(boardDOM) {
+        boardDOMObject = boardDOM;
+    }
+
+    function displayPreview() {
+        boardDOMObject.setState(GameboardObject.previewState);
+    }
+
+    function generatePreviewFromDraggingElement(e) {
+        GameboardObject.resetPreview();
+        const currentDragElement = shipContainer.querySelector('.dragging');
+        const shipLength = currentDragElement.dataset.length;
+        const hoverCell = e.target.closest('.fields .field');
+        const { x, y } = hoverCell.dataset;
+        GameboardObject.placeShipPreview(shipLength,
+                                        placeHorizontal,
+                                        parseInt(y, 10),
+                                        parseInt(x, 10));
+        displayPreview();
+    }
+
+    // will execute when gameboard is set
+    function addListenerToGameField() {
+        gameField.addEventListener('dragover', generatePreviewFromDraggingElement);
+    }
+
+    function setGameBoardObject(gameBoardObject) {
+        GameboardObject = gameBoardObject;
+        addListenerToGameField();
     }
 
     function addOnDragListener(div) {
@@ -86,9 +115,6 @@ const DragDropAPI = (shipContainer, gameField) => {
     function addEventListenersToShip(div) {
         addOnDragListener(div);
         addOnReleaseListener(div);
-    }
-
-    function getXAndYCoordinateOfFirstCell(div) {
     }
 
     function createDraggableShip(length) {
@@ -108,20 +134,34 @@ const DragDropAPI = (shipContainer, gameField) => {
         shipContainer.appendChild(ship);
     }
 
-    return { createDraggableShip, addListenerToGameField };
+    return {
+        setGameBoardObject,
+        setBoardDOMObject,
+        setPlaceHorizontal,
+        createDraggableShip,
+        addListenerToGameField,
+    };
 };
 
 const UserInterface = (() => {
+    const shipsToCreate = [5, 4, 3, 3, 2];
+
     const fieldPlayer = (() => {
         const name = 'You';
         const inDiv = document.getElementById('player');
 
+        const boardDOM = BoardDOM(name, inDiv);
+
         const shipContainer = document.querySelector('.draggable-ships');
         const gameField = document.querySelector('#player .fields');
         const dragAPI = DragDropAPI(shipContainer, gameField);
+        dragAPI.setBoardDOMObject(boardDOM);
 
-        const boardDOM = BoardDOM(name, inDiv);
-        return { ...boardDOM };
+        // create draggable ships
+        shipsToCreate.forEach((length) => dragAPI.createDraggableShip(length));
+
+        const { setGameBoardObject, setPlaceHorizontal } = dragAPI;
+        return { ...boardDOM, setGameBoardObject, setPlaceHorizontal };
     })();
 
     const fieldEnemy = (() => {
@@ -139,4 +179,4 @@ const UserInterface = (() => {
     return { fieldPlayer, fieldEnemy };
 })();
 
-export { UserInterface, DragDropAPI };
+export default UserInterface;

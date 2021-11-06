@@ -1,8 +1,8 @@
 import { Gameboard } from './game';
-import { UserInterface, DragDropAPI } from './dom';
+import UserInterface from './dom';
 import './style.css';
 
 const userBoard = Gameboard();
 const enemyBoard = Gameboard();
 
-UserInterface.
+UserInterface.fieldPlayer.setGameBoardObject(userBoard);

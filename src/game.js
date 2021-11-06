@@ -16,6 +16,10 @@ const Ship = (length) => {
 };
 
 const Gameboard = () => {
+    function getArrayWithoutReference(array) {
+        return array.map((nestedArray) => [...nestedArray]);
+    }
+
     let state = [
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
@@ -28,21 +32,22 @@ const Gameboard = () => {
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
         ['empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty', 'empty'],
     ];
-    let previewState = [...state];
+    // copys previewState without reference
+    let previewState = getArrayWithoutReference(state);
 
     const placedShips = [];
     let counter = 0;
 
     function setState(newArray) {
-        state = newArray;
+        state = getArrayWithoutReference(newArray);
     }
 
     function setPreviewState(newArray) {
-        previewState = newArray;
+        previewState = getArrayWithoutReference(newArray);
     }
 
     function resetPreview() {
-        setPreviewState([...state]);
+        setPreviewState(getArrayWithoutReference(state));
     }
 
     function createID() {
@@ -70,10 +75,10 @@ const Gameboard = () => {
         if (!renderPreview) {
             // manipulating the real gameboard
             id = createShipReference(length);
-            stateCopy = [...state];
+            stateCopy = getArrayWithoutReference(state);
         } else {
             id = 'previewship';
-            stateCopy = [...previewState];
+            stateCopy = getArrayWithoutReference(previewState);
         }
 
         let completedPlacingShip = true;
