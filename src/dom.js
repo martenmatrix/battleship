@@ -86,9 +86,6 @@ const DragDropAPI = (shipContainer, gameField) => {
         const shipLength = currentlyDragging.dataset.length;
         const hoverCell = e.target.closest('.fields .field');
         const { x, y } = hoverCell.dataset;
-        console.log(`x: ${x}, y: ${y}`);
-        console.log(shipLength);
-        console.log(Math.random());
         GameboardObject.placeShipPreview(parseInt(shipLength, 10),
                                         placeHorizontal,
                                         parseInt(y, 10),
@@ -96,9 +93,37 @@ const DragDropAPI = (shipContainer, gameField) => {
         displayPreview();
     }
 
+    function placeShipFromDraggingElement(e) {
+        const shipLength = currentlyDragging.dataset.length;
+        const hoverCell = e.target.closest('.fields .field');
+        const { x, y } = hoverCell.dataset;
+        const isPlaced = GameboardObject.placeShip(parseInt(shipLength, 10),
+                                        placeHorizontal,
+                                        parseInt(y, 10),
+                                        parseInt(x, 10));
+        if (isPlaced) currentlyDragging.classList.add('placed');
+    }
+
     // will execute when gameboard is set
     function addListenerToGameField() {
-        gameField.addEventListener('dragover', generatePreviewFromDraggingElement);
+        gameField.addEventListener('dragover', (e) => {
+        // prevent default to drop event to work because it is not a valid place to drop data
+        e.preventDefault();
+        generatePreviewFromDraggingElement(e);
+        });
+        gameField.addEventListener('dragleave', (e) => {
+            // if div in what the mouse currently entered
+            // is a child of the div which the event listener was added to return
+            if (e.currentTarget.contains(e.relatedTarget)) return;
+            GameboardObject.resetPreview();
+            displayPreview();
+        });
+        gameField.addEventListener('dragenter', (e) => {
+            // if the div the mouse currently exited
+            // is a child of the div which the event listener was added to return
+            if (e.currentTarget.contains(e.relatedTarget)) return;
+        });
+        gameField.addEventListener('drop', placeShipFromDraggingElement);
     }
 
     function setGameBoardObject(gameBoardObject) {

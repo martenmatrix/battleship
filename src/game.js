@@ -95,23 +95,27 @@ const Gameboard = () => {
 
                 if (placeHorizontal) {
                     const newX = x + partsPlaced;
+                    // exceeds array if field is bigger than 10
+                    if (newX > 9) return false;
                     const field = stateCopy[y][newX];
                     if (isNotEmpty(field)) return false;
                     stateCopy[y][newX] = id;
                 }
                 if (!placeHorizontal) {
                     const newY = y + partsPlaced;
+                    // exceeds array if field is bigger than 10
+                    if (newY > 9) return false;
                     const field = stateCopy[newY][x];
                     if (isNotEmpty(field)) return false;
                     stateCopy[newY][x] = id;
                 }
             }
 
-        if (!renderPreview) {
-            setState(stateCopy);
-        }
         if (renderPreview) {
             setPreviewState(stateCopy);
+        }
+        if (!renderPreview) {
+            setState(stateCopy);
         }
         // ship was successfully placed
         return true;
