@@ -35,17 +35,17 @@ describe('Gameboard Factory Function', () => {
     const board = Gameboard();
 
     test('Has a state array property', () => {
-        expect(Array.isArray(board.state)).toEqual(true);
+        expect(Array.isArray(board.getState())).toEqual(true);
     });
 
     test('Is a 10x10 field', () => {
-        const { state } = board;
+        const state = board.getState();
         expect(state[9][9]).toEqual('empty');
     });
 
     test('Can place a ship horizontally', () => {
         const response = board.placeShip(3, true, 0, 0);
-        const boardState = board.state;
+        const boardState = board.getState();
         expect(response).toEqual(true);
         expect(boardState[0][0]).not.toEqual('empty');
         expect(boardState[0][1]).not.toEqual('empty');
@@ -54,7 +54,7 @@ describe('Gameboard Factory Function', () => {
 
     test('Can place a ship vertically', () => {
         const response = board.placeShip(3, false, 3, 0);
-        const boardState = board.state;
+        const boardState = board.getState();
         expect(response).toEqual(true);
         expect(boardState[3][0]).not.toEqual('empty');
         expect(boardState[4][0]).not.toEqual('empty');
@@ -69,11 +69,11 @@ describe('Gameboard Factory Function', () => {
     });
 
     test('If ship received an attack, state in array is hit', () => {
-        expect(board.state[6][0]).toEqual('hit');
+        expect(board.getState()[6][0]).toEqual('hit');
     });
 
     test('Empty fields can receive an attack and are marked as missed', () => {
-        const { state } = board;
+        const state = board.getState();
         const didHit = board.receiveAttack(9, 0);
         expect(didHit).toEqual('miss');
         expect(state[9][0]).toEqual('miss');
@@ -96,16 +96,17 @@ describe('Gameboard Factory Function', () => {
     describe('Preview function', () => {
         const newBoard = Gameboard();
         test('previewState is a 10x10 array', () => {
-            const { previewState } = newBoard;
+            const previewState = newBoard.getPreviewState();
             expect(Array.isArray(previewState)).toEqual(true);
         });
         test('previewState has currently the same state as the normal state', () => {
-            const { previewState, state } = newBoard;
+            const state = newBoard.getState();
+            const previewState = newBoard.getPreviewState();
             expect(previewState).toEqual(state);
         });
         test('placeShipPreview() returns true if a placement of a ship is possible changes the preview array', () => {
-            const { previewState } = newBoard;
             const response = newBoard.placeShipPreview(3, true, 0, 0);
+            const previewState = newBoard.getPreviewState();
             expect(response).toEqual(true);
             expect(previewState[0][0]).not.toEqual('empty');
             expect(previewState[0][1]).not.toEqual('empty');
@@ -119,9 +120,10 @@ describe('Gameboard Factory Function', () => {
             expect(previewState).toEqual(previousState);
         });
         test('resetPreview() resets the array to the current state', () => {
-            const { previewState, state } = newBoard;
             newBoard.placeShipPreview(3, true, 0, 0);
             newBoard.resetPreview();
+            const state = newBoard.getState();
+            const previewState = newBoard.getPreviewState();
             expect(previewState).toEqual(state);
         });
         // todo maybe completely replace previewState with one var declarations as refernce is kept
@@ -133,7 +135,7 @@ describe('Player Factory Function', () => {
     const player2 = Player('player2');
 
     test('attackEnemy() takes an enemy player factory and receives an attack on it', () => {
-        expect(Array.isArray(player.state)).toEqual(true);
+        expect(Array.isArray(player.getState())).toEqual(true);
     });
 
     test('Players have an accessible name property', () => {
@@ -164,7 +166,7 @@ describe('Player Factory Function', () => {
             });
 
             test('every state field of the enemy has the missed state', () => {
-                computerEnemy.state.forEach((fieldArray) => {
+                computerEnemy.getState().forEach((fieldArray) => {
                     const everyFieldMiss = fieldArray.every((field) => field === 'miss');
                     expect(everyFieldMiss).toEqual(true);
                 });

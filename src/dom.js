@@ -66,6 +66,7 @@ const BoardDOM = (id, inDiv) => {
 const DragDropAPI = (shipContainer, gameField) => {
     let GameboardObject;
     let boardDOMObject;
+    let currentlyDragging = null;
     let placeHorizontal = false;
 
     function setPlaceHorizontal(boolean) {
@@ -77,16 +78,18 @@ const DragDropAPI = (shipContainer, gameField) => {
     }
 
     function displayPreview() {
-        boardDOMObject.setState(GameboardObject.previewState);
+        boardDOMObject.setState(GameboardObject.getPreviewState());
     }
 
     function generatePreviewFromDraggingElement(e) {
         GameboardObject.resetPreview();
-        const currentDragElement = shipContainer.querySelector('.dragging');
-        const shipLength = currentDragElement.dataset.length;
+        const shipLength = currentlyDragging.dataset.length;
         const hoverCell = e.target.closest('.fields .field');
         const { x, y } = hoverCell.dataset;
-        GameboardObject.placeShipPreview(shipLength,
+        console.log(`x: ${x}, y: ${y}`);
+        console.log(shipLength);
+        console.log(Math.random());
+        GameboardObject.placeShipPreview(parseInt(shipLength, 10),
                                         placeHorizontal,
                                         parseInt(y, 10),
                                         parseInt(x, 10));
@@ -104,7 +107,10 @@ const DragDropAPI = (shipContainer, gameField) => {
     }
 
     function addOnDragListener(div) {
-        div.addEventListener('dragstart', () => div.classList.add('dragging'));
+        div.addEventListener('dragstart', () => {
+            currentlyDragging = div;
+            div.classList.add('dragging');
+        });
     }
 
     // drop event fires if player let element go

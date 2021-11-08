@@ -46,8 +46,16 @@ const Gameboard = () => {
         previewState = getArrayWithoutReference(newArray);
     }
 
+    function getState() {
+        return state;
+    }
+
+    function getPreviewState() {
+        return previewState;
+    }
+
     function resetPreview() {
-        setPreviewState(getArrayWithoutReference(state));
+        setPreviewState(state);
     }
 
     function createID() {
@@ -81,42 +89,32 @@ const Gameboard = () => {
             stateCopy = getArrayWithoutReference(previewState);
         }
 
-        let completedPlacingShip = true;
-        // place ship
-        for (let i = 0; i < length; i++) {
-                const changingAxis = placeHorizontal ? x : y;
-                const manipulatedCoord = changingAxis + i;
+        // place ship from starting point along its length
+        for (let partsPlaced = 0; partsPlaced < length; partsPlaced++) {
+                const isNotEmpty = (field) => !(field === 'empty');
+
                 if (placeHorizontal) {
-                    // get field content
-                    const fieldContent = stateCopy[y][manipulatedCoord];
-                    if (!(fieldContent === 'empty')) {
-                        completedPlacingShip = false;
-                        break;
-                    }
-                    // set field content
-                    stateCopy[y][manipulatedCoord] = id;
+                    const newX = x + partsPlaced;
+                    const field = stateCopy[y][newX];
+                    if (isNotEmpty(field)) return false;
+                    stateCopy[y][newX] = id;
                 }
-
                 if (!placeHorizontal) {
-                    // get field content
-                    const fieldContent = stateCopy[y][manipulatedCoord];
-                    if (!(fieldContent === 'empty')) {
-                        completedPlacingShip = false;
-                        break;
-                    }
-                    // set field content
-                    stateCopy[manipulatedCoord][x] = id;
+                    const newY = y + partsPlaced;
+                    const field = stateCopy[newY][x];
+                    if (isNotEmpty(field)) return false;
+                    stateCopy[newY][x] = id;
                 }
             }
 
-        if (completedPlacingShip) {
-            if (!renderPreview) {
-                setState(stateCopy);
-            } else {
-                setPreviewState(stateCopy);
-            }
+        if (!renderPreview) {
+            setState(stateCopy);
         }
-        return completedPlacingShip;
+        if (renderPreview) {
+            setPreviewState(stateCopy);
+        }
+        // ship was successfully placed
+        return true;
     }
 
     function receiveAttack(y, x) {
@@ -146,7 +144,13 @@ const Gameboard = () => {
     }
 
     return {
-        state, previewState, placeShip, receiveAttack, allSunk, placeShipPreview, resetPreview,
+        getState,
+        getPreviewState,
+        placeShip,
+        receiveAttack,
+        allSunk,
+        placeShipPreview,
+        resetPreview,
     };
 };
 
