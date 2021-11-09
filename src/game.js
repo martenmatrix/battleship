@@ -34,7 +34,6 @@ const Gameboard = () => {
     ];
     // copys previewState without reference
     let previewState = getArrayWithoutReference(state);
-
     const placedShips = [];
     let counter = 0;
 
@@ -77,6 +76,12 @@ const Gameboard = () => {
         return reference;
     }
 
+    function removeShipReference(id) {
+        const index = placedShips.findIndex((obj) => obj.id === id);
+        placedShips.splice(index, 1);
+        counter -= 1;
+    }
+
     function placeShip(length, placeHorizontal, y, x, renderPreview = false) {
         let id, stateCopy;
 
@@ -96,17 +101,29 @@ const Gameboard = () => {
                 if (placeHorizontal) {
                     const newX = x + partsPlaced;
                     // exceeds array if field is bigger than 10
-                    if (newX > 9) return false;
+                    if (newX > 9) {
+                        if (!renderPreview) removeShipReference(id);
+                        return false;
+                    }
                     const field = stateCopy[y][newX];
-                    if (isNotEmpty(field)) return false;
+                    if (isNotEmpty(field)) {
+                        if (!renderPreview) removeShipReference(id);
+                        return false;
+                    }
                     stateCopy[y][newX] = id;
                 }
                 if (!placeHorizontal) {
                     const newY = y + partsPlaced;
                     // exceeds array if field is bigger than 10
-                    if (newY > 9) return false;
+                    if (newY > 9) {
+                        if (!renderPreview) removeShipReference(id);
+                        return false;
+                    }
                     const field = stateCopy[newY][x];
-                    if (isNotEmpty(field)) return false;
+                    if (isNotEmpty(field)) {
+                        if (!renderPreview) removeShipReference(id);
+                        return false;
+                    }
                     stateCopy[newY][x] = id;
                 }
             }
@@ -124,6 +141,7 @@ const Gameboard = () => {
     function receiveAttack(y, x) {
         const stateOfField = state[y][x];
         if (stateOfField === 'miss') return false;
+        if (stateOfField === 'hit') return false;
         if (stateOfField === 'empty') {
             state[y][x] = 'miss';
             return 'miss';
@@ -147,6 +165,18 @@ const Gameboard = () => {
         return response;
     }
 
+    function populateRandom(shipLengthArray) {
+        shipLengthArray.forEach((length) => {
+            let response = false;
+            do {
+                const randomX = Math.floor(Math.random() * 10);
+                const randomY = Math.floor(Math.random() * 10);
+                const placeHorizontal = Math.random() >= 0.5;
+                response = placeShip(length, placeHorizontal, randomY, randomX);
+            } while (!response);
+        });
+    }
+
     return {
         getState,
         getPreviewState,
@@ -155,13 +185,18 @@ const Gameboard = () => {
         allSunk,
         placeShipPreview,
         resetPreview,
+        populateRandom,
     };
 };
 
-const Player = (name) => {
+const GamePlayer = (name, shipsToPlay) => {
     const playerBoard = Gameboard();
-    const isComputer = name === 'computer';
+    const isComputer = name.toLowerCase() === 'computer';
     let iterationAI = 0;
+
+    if (isComputer) {
+        playerBoard.populateRandom(shipsToPlay);
+    }
 
     function attackEnemy(enemyPlayer, y, x) {
         const response = enemyPlayer.receiveAttack(y, x);
@@ -202,10 +237,15 @@ const Player = (name) => {
         return false;
     }
 
+    function hasWon(enemyPlayer) {
+        const allSunk = enemyPlayer.allSunk();
+        return allSunk;
+    }
+
     return {
-        name, isComputer, attackEnemy, attackEnemyAI, ...playerBoard,
+        name, isComputer, attackEnemy, attackEnemyAI, hasWon, ...playerBoard,
     };
 };
 
 // es6 modules are always in strict mode
-export { Ship, Gameboard, Player };
+export { Ship, Gameboard, GamePlayer };

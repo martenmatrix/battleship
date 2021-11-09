@@ -35,7 +35,7 @@ const BoardDOM = (id, inDiv) => {
         }
     }());
 
-    function setStateField(state, y, x) {
+    function setStateField(state, y, x, displayShips) {
         const fieldSelector = `.fields .field[data-y="${y}"][data-x="${x}"]`;
         const field = inDiv.querySelector(fieldSelector);
         switch (state) {
@@ -50,13 +50,15 @@ const BoardDOM = (id, inDiv) => {
                 break;
             default:
                 // must be a ship
-                field.style.background = 'black';
+                if (displayShips) {
+                    field.style.background = 'black';
+                }
         }
     }
 
-    function setState(boardArray) {
+    function setState(boardArray, displayShips = true) {
         boardArray.forEach((fieldArray, y) => {
-            fieldArray.forEach((fieldState, x) => setStateField(fieldState, y, x));
+            fieldArray.forEach((fieldState, x) => setStateField(fieldState, y, x, displayShips));
         });
     }
 
@@ -68,6 +70,13 @@ const DragDropAPI = (shipContainer, gameField) => {
     let boardDOMObject;
     let currentlyDragging = null;
     let placeHorizontal = false;
+    const placedShips = [];
+    let shipsToPlace = [];
+
+    function setShipsToPlace(array) {
+        shipsToPlace = array;
+        shipsToPlace.forEach((shipLength) => createDraggableShip(shipLength));
+    }
 
     function setPlaceHorizontal(boolean) {
         placeHorizontal = boolean;
@@ -101,7 +110,11 @@ const DragDropAPI = (shipContainer, gameField) => {
                                         placeHorizontal,
                                         parseInt(y, 10),
                                         parseInt(x, 10));
-        if (isPlaced) currentlyDragging.classList.add('placed');
+        if (isPlaced) {
+            currentlyDragging.classList.add('placed');
+            placedShips.push(shipLength);
+            allPlaced();
+        }
     }
 
     // will execute when gameboard is set
@@ -117,11 +130,6 @@ const DragDropAPI = (shipContainer, gameField) => {
             if (e.currentTarget.contains(e.relatedTarget)) return;
             GameboardObject.resetPreview();
             displayPreview();
-        });
-        gameField.addEventListener('dragenter', (e) => {
-            // if the div the mouse currently exited
-            // is a child of the div which the event listener was added to return
-            if (e.currentTarget.contains(e.relatedTarget)) return;
         });
         gameField.addEventListener('drop', placeShipFromDraggingElement);
     }
@@ -165,7 +173,23 @@ const DragDropAPI = (shipContainer, gameField) => {
         shipContainer.appendChild(ship);
     }
 
+    let promiseResolve;
+    function allShipsPlaced() {
+        return new Promise((resolve) => {
+            promiseResolve = resolve;
+        });
+    }
+
+    function allPlaced() {
+        if (placedShips.length === shipsToPlace.length) {
+            promiseResolve();
+        }
+    }
+
     return {
+        placedShips,
+        allShipsPlaced,
+        setShipsToPlace,
         setGameBoardObject,
         setBoardDOMObject,
         setPlaceHorizontal,
@@ -174,40 +198,10 @@ const DragDropAPI = (shipContainer, gameField) => {
     };
 };
 
-const UserInterface = (() => {
-    const shipsToCreate = [5, 4, 3, 3, 2];
+function displayWinner(name) {
+    const winnerNameField = document.querySelector('.winner-container .winner-name');
+    winnerNameField.textContent = name;
+    document.querySelector('.winner-container').classList.add('active');
+}
 
-    const fieldPlayer = (() => {
-        const name = 'You';
-        const inDiv = document.getElementById('player');
-
-        const boardDOM = BoardDOM(name, inDiv);
-
-        const shipContainer = document.querySelector('.draggable-ships');
-        const gameField = document.querySelector('#player .fields');
-        const dragAPI = DragDropAPI(shipContainer, gameField);
-        dragAPI.setBoardDOMObject(boardDOM);
-
-        // create draggable ships
-        shipsToCreate.forEach((length) => dragAPI.createDraggableShip(length));
-
-        const { setGameBoardObject, setPlaceHorizontal } = dragAPI;
-        return { ...boardDOM, setGameBoardObject, setPlaceHorizontal };
-    })();
-
-    const fieldEnemy = (() => {
-        const name = 'Enemy';
-        const inDiv = document.getElementById('enemy');
-
-        const boardDOM = BoardDOM(name, inDiv);
-        return { ...boardDOM };
-    })();
-
-    function displayWinner(name) {
-
-    }
-
-    return { fieldPlayer, fieldEnemy };
-})();
-
-export default UserInterface;
+export { BoardDOM, DragDropAPI, displayWinner };
