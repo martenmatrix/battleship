@@ -139,6 +139,8 @@ const Gameboard = () => {
     }
 
     function receiveAttack(y, x) {
+        if (y > 9 || x > 9) return false;
+        if (y < 0 || x < 0) return false;
         const stateOfField = state[y][x];
         if (stateOfField === 'miss') return false;
         if (stateOfField === 'hit') return false;
@@ -213,10 +215,57 @@ const GamePlayer = (name, shipsToPlay) => {
         const randomCoordinate = () => Math.floor(Math.random() * 10);
 
         while (iterationAI < 100) {
-            const x = randomCoordinate();
-            const y = randomCoordinate();
+            let x = randomCoordinate();
+            let y = randomCoordinate();
+            // check if array contains coordinates
+            const isAlreadyAttacked = attackedCoordinates
+                                        .hit
+                                        .some((obj) => obj.x === x && obj.y === y);
 
-            const response = attackEnemy(enemyPlayer, y, x);
+            const isAlreadyMissed = attackedCoordinates
+                                        .miss
+                                        .some((obj) => obj.x === x && obj.y === y);
+
+            // checks if a hit field was not checked for ships next to it
+            const hitFieldNotCheckedAround = () => {
+                const fieldToCheck = attackedCoordinates.hit.find((obj) => {
+                        const isFree = obj.aroundHit.top === false
+                                        || obj.aroundHit.left === false
+                                        || obj.aroundHit.right === false
+                                        || obj.aroundHit.bottom === false;
+                        return isFree;
+                    });
+                if (fieldToCheck === undefined) {
+                    return false;
+                }
+                return fieldToCheck;
+            };
+
+            let response = false;
+            let fieldToCheck = false;
+            fieldToCheck = hitFieldNotCheckedAround();
+            if (fieldToCheck) {
+                x = fieldToCheck.x;
+                y = fieldToCheck.y;
+                if (!fieldToCheck.aroundHit.top) {
+                    y -= 1;
+                    fieldToCheck.aroundHit.top = true;
+                } else if (!fieldToCheck.aroundHit.left) {
+                    x -= 1;
+                    fieldToCheck.aroundHit.left = true;
+                } else if (!fieldToCheck.aroundHit.right) {
+                    x += 1;
+                    fieldToCheck.aroundHit.right = true;
+                } else if (!fieldToCheck.aroundHit.bottom) {
+                    y += 1;
+                    fieldToCheck.aroundHit.bottom = true;
+                }
+            }
+
+            if ((!(isAlreadyAttacked || isAlreadyMissed))
+                || fieldToCheck) {
+                response = attackEnemy(enemyPlayer, y, x);
+            }
 
             if (!(response === false)) {
                 // field was not already hit, increase counter
@@ -224,7 +273,17 @@ const GamePlayer = (name, shipsToPlay) => {
             }
 
             if (response === true) {
-                attackedCoordinates.hit.push({ y, x });
+                attackedCoordinates.hit.push({
+                y,
+                x,
+                aroundHit: {
+                    top: false,
+                    left: false,
+                    right: false,
+                    bottom: false,
+                },
+                });
+
                 return true;
             }
 
