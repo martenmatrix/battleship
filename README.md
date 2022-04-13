@@ -26,7 +26,7 @@ The application is hosted at the following address:
 ## :grey_exclamation: Usage
 
 1. Place the ships located above your game field per drag and drop.
-2. If you've placed every ship, click a tile on the enemies board.
+2. If you've placed every ship, click a tile on the enemies board. If the thils is now red, you've hit a ship, if its orange, you missed.
 3. The computer should place a tile on your board.
 4. Enjoy your game and good luck. :tada:
 If something does not work as expected, please [create an issue](https://github.com/martenmatrix/battleship/issues).
