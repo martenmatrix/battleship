@@ -1,5 +1,5 @@
 {
-  "name": "default",
+  "name": "battleship",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,15 +11,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://www.example.com"
+    "url": "https://github.com/martenmatrix/battleship"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://www.example.com"
-  },
-  "homepage": "https://www.example.com",
+  "homepage": "https://martenmatrix.github.io/odin-battleship/",
   "devDependencies": {
     "@babel/core": "^7.15.8",
     "@babel/eslint-parser": "^7.15.8",
